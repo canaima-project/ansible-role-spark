@@ -1,0 +1,12 @@
+---
+- name: Install EPEL repo
+  yum: 
+    name: epel-release
+    state: present
+    update_cache: yes # yum update
+
+- name: Install Java
+  yum:
+    name: java 
+    state: present
+  
