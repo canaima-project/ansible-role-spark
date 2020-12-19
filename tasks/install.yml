@@ -10,3 +10,73 @@
     name: java 
     state: present
   
+- name: Install Scala 
+  get_url:
+    url: http://www.scala-lang.org/files/archive/scala-2.10.1.tgz
+    dest: /home/ansible
+
+- name: Unarchive Scala tgz
+  unarchive:
+    src: /home/ansible/scala-2.10.1.tgz
+    dest: /usr/lib/scala-2.10.1
+
+- name: Create a symoblic link (ln -s /usr/lib/scala-2.10.1 /usr/lib/scala)
+  file:
+    src: /usr/lib/scala-2.10.1
+    dest: /usr/lib/scala
+    owner: ansible
+    group: ansible
+    state: link
+
+- name: Export Scala's path into PATH env var
+  shell: export PATH=$PATH:/usr/lib/scala/bin
+
+- name: Copy Spark archive
+  get_url:
+    url:  http://www-eu.apache.org/dist/spark/spark-2.2.1/spark-2.2.1-bin-hadoop2.7.tgz
+    dest: /home/ansible
+
+- name: Unarchive Spark tgz
+  unarchive:
+    src: /home/ansible/spark-2.2.1-bin-hadoop2.7.tgz
+    dest: /home/ansible/spark-2.2.1-bin-hadoop2.7
+
+- name: Create SPARK_HOME env var
+  shell: export SPARK_HOME=$HOME/spark-2.2.1-bin-hadoop2.7
+
+- name: Set up PATH env var
+  shell: echo 'export PATH=$PATH:/usr/lib/scala/bin' >> .bash_profile
+
+- name: Set up SPARK_HOME env var
+  shell: echo 'export SPARK_HOME=$HOME/spark-1.6.0-bin-hadoop2.6' >> .bash_profile
+
+- name: Set up PATH env var again
+  shell: echo 'export PATH=$PATH:$SPARK_HOME/bin' >> .bash_profile
+
+- name: Configure firewall for Spark (port 6066)
+  firewalld:
+    port: 6066/tcp
+    permanent: true
+    state: enabled
+
+- name: Configure firewall for Spark (port 7077)
+  firewalld:
+    port: 7077/tcp
+    permanent: true
+    state: enabled
+
+- name: Configure firewall for Spark (port 8080)
+  firewalld:
+    port: 8080/tcp
+    permanent: true
+    state: enabled
+
+- name: Configure firewall for Spark (port 8081)
+  firewalld:
+    port: 8081/tcp
+    permanent: true
+    state: enabled
+
+- name: Reload firewall
+  shell: firewall-cmd --reload
+  
